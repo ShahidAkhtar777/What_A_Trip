@@ -1,0 +1,22 @@
+{
+  "name": "travel_planner",
+  "version": "1.0.0",
+  "description": "A travel planner for visiting cities",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ShahidAkhtar777/What_A_Trip.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ShahidAkhtar777/What_A_Trip/issues"
+  },
+  "homepage": "https://github.com/ShahidAkhtar777/What_A_Trip#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
