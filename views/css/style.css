@@ -31,13 +31,17 @@ body {
     margin: 0 auto;
 }
 
-#generate-graph{
-    margin:auto;
-    display:block;
+button{
+    width: 150px;
+}
+
+#user-graph, #generate-graph{
+    display: inline;
 }
 
 
 #solve{
     margin:auto;
+    margin-bottom: 30px;
     display:block;
 }
