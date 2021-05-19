@@ -1,12 +1,14 @@
 onload = function(){
 // Create new Graph
+let cities_copy,src,dst;
+
 const container = document.getElementById('mynetwork');
 const genNew = document.getElementById('generate-graph');
 const solve = document.getElementById('solve');
 const temptext = document.getElementById('temptext');
 const temptext2 = document.getElementById('temptext2');
+
 var user = document.getElementById('u').innerText;
-console.log(user+typeof(user));
 
 // graph options
 const options = {
@@ -35,14 +37,16 @@ const options = {
     network.setOptions(options);
 
     // Initialise network for output graph
-    const network2 = new vis.Network(container2);
-    network2.setOptions(options);
+    // const network2 = new vis.Network(container2);
+    // network2.setOptions(options);
 
     function createData()
     {    
         if(user === "0")
         {
             const cities = ['Delhi', 'Mumbai', 'Gujarat', 'Goa', 'Kanpur', 'Jammu', 'Hyderabad', 'Bangalore', 'Gangtok', 'Meghalaya'];
+            cities_copy = cities.slice();
+
             const V = Math.floor(Math.random() * 8) + 3;  // Ensures V is between 3 and 10
             
             let vertices = [];
@@ -131,6 +135,7 @@ const options = {
             let res = v.split(",");
             
             const cities = res;
+            cities_copy = cities;
             let len = cities.length;
             let vertices = [];
 
@@ -139,7 +144,8 @@ const options = {
             }
 
             console.log(vertices);
-
+            
+            // Adding bus(orange) edges in edges[]
             let e = document.getElementById('e').innerText;
             console.log("Full Edges"+e);
 
@@ -155,6 +161,33 @@ const options = {
                 var sub_str = edge.substr(1, len2-2);
                 var edge_data = sub_str.split(",");
 
+                // console.log(edge_data);
+                let st = cities.indexOf(edge_data[0])+1;
+                // console.log("Start: "+st);
+                let end = cities.indexOf(edge_data[1])+1;
+                // console.log("End: "+end);
+                let wt = edge_data[2];
+                // console.log("Weight: "+wt);
+
+                edges.push({type:0 , from: st,to: end,color: 'orange', label: String(wt)});
+            }
+
+            // Adding plane(green) edges in edges[]
+            let pl = document.getElementById('pl').innerText;
+            console.log("Full Edges"+pl);
+
+            let pl_ed = pl.split("-");
+            let p_ln = pl_ed.length;
+            
+            console.log(pl_ed);
+
+            for(var i=0;i<p_ln;i++)
+            {
+                let edge = pl_ed[i];
+                let len2 = edge.length;
+                let sub_str = edge.substr(1, len2-2);
+                let edge_data = sub_str.split(",");
+
                 console.log(edge_data);
                 let st = cities.indexOf(edge_data[0])+1;
                 console.log("Start: "+st);
@@ -163,10 +196,53 @@ const options = {
                 let wt = edge_data[2];
                 console.log("Weight: "+wt);
 
-                edges.push({from: st,to: end,color: 'orange', label: String(wt)});
+                // Plane edge possibility check
+                if(st!==end)
+                {
+                    if(st<end)
+                    {
+                        let tmp = st;
+                        st = end;
+                        end = tmp;
+                    }
+                    // Seeing if an edge between these two vertices already exists
+                    // And if it does then of which kind
+
+                    // 0 => means no path is there & plane can be added
+                    // 1 => means bus is already present & plane can also be added
+                    // 2 => means plane is already present & plane cant be added
+                    let works = 0;
+                    for(let j=0;j<edges.length;j++)
+                    {
+                        if(edges[j]['from']===st && edges[j]['to']===end) 
+                        {
+                            if(edges[j]['type']===0)
+                                works = 1;
+                            else
+                                works = 2;
+                        }
+                    }
+    
+                    // Adding edges to the graph
+                    // If works == 0, you can add bus as well as plane between vertices
+                    // If works == 1, you can only add plane between them
+                    if(works <= 1) 
+                    {
+                        // Adding a plane
+                        edges.push({
+                            type: 1,
+                            from: st,
+                            to: end,
+                            color: 'green',
+                            label: wt
+                            });
+                    }
+                }
             }
 
             user = "0";
+            src = 1;
+            dst = len;
 
             let data ={
                 nodes: vertices,
@@ -179,8 +255,11 @@ const options = {
     genNew.onclick = function(){
         let data = createData();
         network.setData(data);
+        temptext2.innerText = 'Find least time path from: ' + cities_copy[src-1] + ' to '+ cities_copy[dst-1];
+        temptext.style.display = "inline";
+        temptext2.style.display = "inline";
+        // container2.style.display = "none";
     };
         
     genNew.click();
-   
 };
