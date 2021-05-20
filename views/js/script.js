@@ -151,12 +151,10 @@ const options = {
             
             // Adding bus(orange) edges in edges[]
             let e = document.getElementById('e').innerText;
-            console.log("Full Edges"+e);
 
             var ed = e.split("-");
             var ln = ed.length;
             
-            console.log(ed);
             let edges = [];
             for(var i=0;i<ln;i++)
             {
@@ -178,7 +176,6 @@ const options = {
 
             // Adding plane(green) edges in edges[]
             let pl = document.getElementById('pl').innerText;
-            console.log("Full Edges"+pl);
 
             let pl_ed = pl.split("-");
             let p_ln = pl_ed.length;
@@ -192,13 +189,9 @@ const options = {
                 let sub_str = edge.substr(1, len2-2);
                 let edge_data = sub_str.split(",");
 
-                console.log(edge_data);
                 let st = cities.indexOf(edge_data[0])+1;
-                console.log("Start: "+st);
                 let end = cities.indexOf(edge_data[1])+1;
-                console.log("End: "+end);
                 let wt = edge_data[2];
-                console.log("Weight: "+wt);
 
                 // Plane edge possibility check
                 if(st!==end)
@@ -306,7 +299,6 @@ const options = {
                 }
             }
         }
-        console.log("Dijkstra Implemented!!");
         return dist;
     }
 
@@ -316,11 +308,9 @@ const options = {
         for(let i=1;i<=V;i++){
             graph.push([]);
         }
-        console.log(data);
 
         for(let i=0;i<data['edges'].length;i++) 
         {
-            console.log(i);
             let edge = data['edges'][i];
             console.log(edge);
             if(edge['type']===1)
@@ -332,45 +322,81 @@ const options = {
             graph[edge['to']-1].push([edge['from']-1,parseInt(edge['label'])]);
             graph[edge['from']-1].push([edge['to']-1,parseInt(edge['label'])]);
 
-            console.log("Edge Added Success");
-            console.log(graph);
         }
         return graph;
     }
 
+    function shouldTakePlane(edges, dist1, dist2, mn_dist) {
+        let plane = 0;
+        let p1=-1, p2=-1;
+        for(let pos in edges){
+            let edge = edges[pos];
+            if(edge['type']===1){
+                let to = edge['to']-1;
+                let from = edge['from']-1;
+                let wght = parseInt(edge['label']);
+                if(dist1[to][0]+wght+dist2[from][0] < mn_dist){
+                    plane = wght;
+                    p1 = to;
+                    p2 = from;
+                    mn_dist = dist1[to][0]+wght+dist2[from][0];
+                }
+                if(dist2[to][0]+wght+dist1[from][0] < mn_dist){
+                    plane = wght;
+                    p2 = to;
+                    p1 = from;
+                    mn_dist = dist2[to][0]+wght+dist1[from][0];
+                }
+            }
+        }
+        return {plane, p1, p2};
+    }
+
     function solveData() 
     {
-        console.log("Entered Solve Area!!");
         const data = graph_copy;
-        console.log("Data copied");
         // Creating adjacency list matrix graph from question data
         const graph = createGraph(data);
 
-        console.log("Graph Created!!");
-        // Applying djikstra from src 
-        let dist = djikstra(graph,V,src-1);
-        console.log("Dijkstra Implemented!!");
+        // Applying djikstra from src and dst
+        let dist1 = djikstra(graph,V,src-1);
+        let dist2 = djikstra(graph,V,dst-1);
 
-        console.log(dist);
-        console.log(dist[dst-1]);
-        console.log(cities_copy);
-        let parent = dst-1;
+         // Initialise min_dist to min distance via bus from src to dst
+         let mn_dist = dist1[dst-1][0];
 
-        // Contains Optimal Path taking only Buses
+        // See if plane should be used
+        let {plane, p1, p2} = shouldTakePlane(data['edges'], dist1, dist2, mn_dist);
+
         let new_edges = [];
-        while(parent!=0)
+        if(plane!==0)
         {
-            let path_length = dist[parent][0] - dist[dist[parent][1]][0];
-            new_edges.push({arrows: { to: { enabled: true}}, from: dist[parent][1]+1, to: parent+1, color: 'orange',label: String(dist[parent][0]-dist[dist[parent][1]][0])});
-            parent = dist[parent][1];
+            new_edges.push({arrows: { to: { enabled: true}}, from: p1+1, to: p2+1, color: 'green',label: String(plane)});
+            // Using spread operator to push elements of result of pushEdges to new_edges
+            new_edges.push(...pushEdges(dist1, p1, false));
+            new_edges.push(...pushEdges(dist2, p2, true));
+        }else{
+            new_edges.push(...pushEdges(dist1, dst-1, false));
         }
-        console.log(new_edges);
-
         const ans_data = {
             nodes: data['nodes'],
             edges: new_edges
         };
         return ans_data;
+    }
+
+    function pushEdges(dist, curr, reverse) 
+    {
+        let tmp_edges = [];
+        while(dist[curr][0]!==0){
+            let fm = dist[curr][1];
+            if(reverse)
+                tmp_edges.push({arrows: { to: { enabled: true}},from: curr+1, to: fm+1, color: 'orange', label: String(dist[curr][0] - dist[fm][0])});
+            else
+                tmp_edges.push({arrows: { to: { enabled: true}},from: fm+1, to: curr+1, color: 'orange', label: String(dist[curr][0] - dist[fm][0])});
+            curr = fm;
+        }
+        return tmp_edges;
     }
 
     genNew.click();
