@@ -1,6 +1,6 @@
 onload = function(){
 // Create new Graph
-let cities_copy,src,dst;
+let cities_copy,graph_copy,V,src,dst;
 
 const container = document.getElementById('mynetwork');
 const genNew = document.getElementById('generate-graph');
@@ -37,8 +37,8 @@ const options = {
     network.setOptions(options);
 
     // Initialise network for output graph
-    // const network2 = new vis.Network(container2);
-    // network2.setOptions(options);
+    const network2 = new vis.Network(container2);
+    network2.setOptions(options);
 
     function createData()
     {    
@@ -47,7 +47,7 @@ const options = {
             const cities = ['Delhi', 'Mumbai', 'Gujarat', 'Goa', 'Kanpur', 'Jammu', 'Hyderabad', 'Bangalore', 'Gangtok', 'Meghalaya'];
             cities_copy = cities.slice();
 
-            const V = Math.floor(Math.random() * 8) + 3;  // Ensures V is between 3 and 10
+            V = Math.floor(Math.random() * 8) + 3;  // Ensures V is between 3 and 10
             
             let vertices = [];
             for(let i=1;i<=V;i++){
@@ -127,6 +127,7 @@ const options = {
                 nodes: vertices,
                 edges: edges
             };
+            graph_copy = data;
             return data;
         }
         else
@@ -169,7 +170,7 @@ const options = {
                 let wt = edge_data[2];
                 // console.log("Weight: "+wt);
 
-                edges.push({type:0 , from: st,to: end,color: 'orange', label: String(wt)});
+                edges.push({type:0,from: st,to: end,color: 'orange', label: String(wt)});
             }
 
             // Adding plane(green) edges in edges[]
@@ -240,6 +241,7 @@ const options = {
                 }
             }
 
+            console.log(edges);
             user = "0";
             src = 1;
             dst = len;
@@ -248,6 +250,7 @@ const options = {
                 nodes: vertices,
                 edges: edges
             };
+            graph_copy = data;
             return data;
         }
     };
@@ -258,8 +261,104 @@ const options = {
         temptext2.innerText = 'Find least time path from: ' + cities_copy[src-1] + ' to '+ cities_copy[dst-1];
         temptext.style.display = "inline";
         temptext2.style.display = "inline";
-        // container2.style.display = "none";
+        container2.style.display = "none";
     };
-        
+    
+    solve.onclick = function () {
+        // Create graph from data and set to display
+        // temptext.style.display  = "none";
+        // temptext2.style.display  = "none";
+        container2.style.display = "inline";
+        network2.setData(solveData());
+    };
+
+    function djikstra(graph, sz, src) 
+    {
+        let vis = Array(sz).fill(0);
+        let dist = [];
+        for(let i=1;i<=sz;i++)
+            dist.push([10000,-1]);
+        dist[src][0] = 0;
+
+        for(let i=0;i<sz-1;i++)
+        {
+            let mn = -1;
+            for(let j=0;j<sz;j++)
+            {
+                if(vis[j]===0)
+                {
+                    if(mn===-1 || dist[j][0]<dist[mn][0])
+                        mn = j;
+                }
+            }
+
+            vis[mn] = 1;
+            for(let j in graph[mn])
+            {
+                let edge = graph[mn][j];
+                if(vis[edge[0]]===0 && dist[edge[0]][0]>dist[mn][0]+edge[1])
+                {
+                    dist[edge[0]][0] = dist[mn][0]+edge[1];
+                    dist[edge[0]][1] = mn;
+                }
+            }
+        }
+        console.log("Dijkstra Implemented!!");
+        return dist;
+    }
+
+    function createGraph(data)
+    {
+        let graph = [];
+        for(let i=1;i<=V;i++){
+            graph.push([]);
+        }
+
+        for(let i=0;i<data['edges'].length;i++) 
+        {
+            let edge = data['edges'][i];
+            if(edge['type']===1)
+                continue;
+            graph[edge['to']-1].push([edge['from']-1,parseInt(edge['label'])]);
+            graph[edge['from']-1].push([edge['to']-1,parseInt(edge['label'])]);
+        }
+        return graph;
+    }
+
+    function solveData() 
+    {
+        console.log("Entered Solve Area!!");
+        const data = graph_copy;
+        console.log("Data copied");
+        // Creating adjacency list matrix graph from question data
+        const graph = createGraph(data);
+
+        console.log("Graph Created!!");
+        // Applying djikstra from src 
+        let dist = djikstra(graph,V,src-1);
+        console.log("Dijkstra Implemented!!");
+
+        console.log(dist);
+        console.log(dist[dst-1]);
+        console.log(cities_copy);
+        let parent = dst-1;
+
+        // Contains Optimal Path taking only Buses
+        let new_edges = [];
+        while(parent!=0)
+        {
+            let path_length = dist[parent][0] - dist[dist[parent][1]][0];
+            new_edges.push({arrows: { to: { enabled: true}}, from: dist[parent][1]+1, to: parent+1, color: 'orange',label: String(dist[parent][0]-dist[dist[parent][1]][0])});
+            parent = dist[parent][1];
+        }
+        console.log(new_edges);
+
+        const ans_data = {
+            nodes: data['nodes'],
+            edges: new_edges
+        };
+        return ans_data;
+    }
+
     genNew.click();
 };
