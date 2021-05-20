@@ -138,6 +138,7 @@ const options = {
             const cities = res;
             cities_copy = cities;
             let len = cities.length;
+            V = len;
             let vertices = [];
 
             for(let i=1;i<=len;i++){
@@ -145,6 +146,8 @@ const options = {
             }
 
             console.log(vertices);
+            // Prepares vis.js style nodes for our data
+            // vertices = new vis.DataSet(vertices);
             
             // Adding bus(orange) edges in edges[]
             let e = document.getElementById('e').innerText;
@@ -313,14 +316,24 @@ const options = {
         for(let i=1;i<=V;i++){
             graph.push([]);
         }
+        console.log(data);
 
         for(let i=0;i<data['edges'].length;i++) 
         {
+            console.log(i);
             let edge = data['edges'][i];
+            console.log(edge);
             if(edge['type']===1)
                 continue;
+
+            console.log(edge['to']-1);
+            console.log(edge['from']-1);
+
             graph[edge['to']-1].push([edge['from']-1,parseInt(edge['label'])]);
             graph[edge['from']-1].push([edge['to']-1,parseInt(edge['label'])]);
+
+            console.log("Edge Added Success");
+            console.log(graph);
         }
         return graph;
     }
