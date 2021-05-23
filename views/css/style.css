@@ -31,6 +31,11 @@ body {
     margin: 0 auto;
 }
 
+#project{
+    font-family: 'Great Vibes', cursive;
+    font-size: 40px;
+}
+
 button{
     width: 150px;
 }

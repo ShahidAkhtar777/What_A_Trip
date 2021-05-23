@@ -5,9 +5,10 @@ let cities_copy,graph_copy,V,src,dst;
 const container = document.getElementById('mynetwork');
 const genNew = document.getElementById('generate-graph');
 const solve = document.getElementById('solve');
-const temptext = document.getElementById('temptext');
 const temptext2 = document.getElementById('temptext2');
 
+let bus_no = document.getElementById("no_of_bus").innerText;
+let plane_no = document.getElementById("no_of_plane").innerText;
 var user = document.getElementById('u').innerText;
 
 // graph options
@@ -15,11 +16,11 @@ const options = {
     edges: {
             labelHighlightBold: true,
             font: {
-                size: 20
+                size: 22
             }
         },
         nodes: {
-            font: '12px arial red',
+            font: '15px arial red',
             scaling: {
                 label: true
             },
@@ -145,7 +146,7 @@ const options = {
                 vertices.push({id:i, label: cities[i-1]})
             }
 
-            console.log(vertices);
+            // console.log(vertices);
             // Prepares vis.js style nodes for our data
             // vertices = new vis.DataSet(vertices);
             
@@ -180,7 +181,7 @@ const options = {
             let pl_ed = pl.split("-");
             let p_ln = pl_ed.length;
             
-            console.log(pl_ed);
+            // console.log(pl_ed);
 
             for(var i=0;i<p_ln;i++)
             {
@@ -237,11 +238,15 @@ const options = {
                 }
             }
 
-            console.log(edges);
+            let s = document.getElementById('sr').innerText;
+            let d = document.getElementById('de').innerText;
+            // console.log(s);
+            console.log(d+typeof(d));
             user = "0";
-            src = 1;
-            dst = len;
+            src = cities.indexOf(s)+1;
+            dst = cities.indexOf(d)+1;
 
+            console.log(dst);
             let data ={
                 nodes: vertices,
                 edges: edges
@@ -254,16 +259,15 @@ const options = {
     genNew.onclick = function(){
         let data = createData();
         network.setData(data);
-        temptext2.innerText = 'Find least time path from: ' + cities_copy[src-1] + ' to '+ cities_copy[dst-1];
-        temptext.style.display = "inline";
+        temptext2.innerText = 'Find least time path from: ' +  cities_copy[src-1] + ' to '+ cities_copy[dst-1] +' taking atmost 1 plane.';
         temptext2.style.display = "inline";
         container2.style.display = "none";
+        document.getElementById("no_of_bus").innerText = bus_no;
+        document.getElementById("no_of_plane").innerText = plane_no; 
     };
     
     solve.onclick = function () {
         // Create graph from data and set to display
-        // temptext.style.display  = "none";
-        // temptext2.style.display  = "none";
         container2.style.display = "inline";
         network2.setData(solveData());
     };
@@ -312,12 +316,12 @@ const options = {
         for(let i=0;i<data['edges'].length;i++) 
         {
             let edge = data['edges'][i];
-            console.log(edge);
+            // console.log(edge);
             if(edge['type']===1)
                 continue;
 
-            console.log(edge['to']-1);
-            console.log(edge['from']-1);
+            // console.log(edge['to']-1);
+            // console.log(edge['from']-1);
 
             graph[edge['to']-1].push([edge['from']-1,parseInt(edge['label'])]);
             graph[edge['from']-1].push([edge['to']-1,parseInt(edge['label'])]);
@@ -378,10 +382,26 @@ const options = {
         }else{
             new_edges.push(...pushEdges(dist1, dst-1, false));
         }
+
+        // console.log(new_edges);
+        let bus_count = 0;
+        let plane_count = 0;
+        for(let pos in new_edges)
+        {
+            if(new_edges[pos]['color'] ==="orange")
+                bus_count++;
+            else   
+                plane_count++;
+        }
+        
+        document.getElementById("no_of_bus").innerText = bus_no +": "+ bus_count;
+        document.getElementById("no_of_plane").innerText = plane_no +": "+ plane_count; 
+
         const ans_data = {
             nodes: data['nodes'],
             edges: new_edges
         };
+        
         return ans_data;
     }
 

@@ -10,43 +10,46 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
     <script src="https://kit.fontawesome.com/5548f5ed00.js" crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet"> 
     <link rel="stylesheet" href="css/style.css">
     <script src="js/script.js"></script>
 </head>
 
 <body>
     <nav class="navbar navbar-light " style="font-size: 25px; font-family: sans-serif; background-color: whitesmoke;">
-        <img src="images/icon2.png" width="80" height="45"
+        <img src="images/destination.png" width="50" height="45"
         class="d-inline-block align-top" alt="">
-        Travel Planner
+        <div style="text-align: center;">
+            <i class="fa fa-bus" aria-hidden="true" style="color: orange" id="no_of_bus">Bus</i>&nbsp;
+            <i class="fa fa-plane" aria-hidden="true" style="color: green" id="no_of_plane">Plane</i>
+        </div>
+        <span id="project">Travel Planner</span>
     </nav>
     <div id="container">
         <div id="mynetwork">
         </div>
         <div id="container2">
-           
-           
         </div>
     </div>
 
     <div class = "text-center">
         <br>
         <button type="button" class="btn btn-primary" id="user-graph" data-toggle="modal" data-target="#form"> Input Graph </button>
-        
+        &nbsp;
         <button type="button" class="btn btn-danger" id="generate-graph">Get New Graph</button>
         <br><br>
         <button type="button" class="btn btn-success" id="solve">Solve</button>
         <span id="temptext2" style="width: 100%; text-align: center; font-size: x-large">
         </span><br>
-        <span id="temptext" style="width: 100%; text-align: center; font-size: x-large">
-            Red link represents bus travel time : <i class="fa fa-bus" aria-hidden="true" style="color: orange"></i><br>
-            Green link represents flight travel time : <i class="fa fa-plane" aria-hidden="true" style="color: green"></i><br>
-            Click on solve to get Solution !!
-        </span>
-        <h5 style="color: blue; display: none;" id="u"><%= user %></h5>
-        <h5 style="color:red;display: none;" id="v"><%= vertex %></h5>
-        <h5 style="color:orange;display: none;" id="e"><%= edges %></h5>
-        <h5 style="color:orange;display: none;" id="pl"><%= planes %></h5>
+       
+        <h5 style="display: none;" id="u"><%= user %></h5>
+        <h5 style="display: none;" id="v"><%= vertex %></h5>
+        <h5 style="display: none;" id="e"><%= edges %></h5>
+        <h5 style="display: none;" id="pl"><%= planes %></h5>
+        <h5 style="display: none;" id="sr"><%= src %></h5>
+        <h5 style="display: none;" id="de"><%= dest %></h5>
+        
     </div>
 
     <div class="container">
@@ -64,15 +67,26 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="vertices">Add Cities:</label>
-                            <input type="textarea" class="form-control" id="vertices" name="vertex" placeholder="cities">
+                            <input type="textarea" class="form-control" id="vertices" name="vertex" placeholder="Ex: Delhi,Pune,Goa">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-sm-6 flex-column d-flex">
+                                <label for="vertices">Source City:</label>
+                                <input type="textarea" class="form-control" id="src" name="src" placeholder="Ex: Delhi">
+                            
+                            </div>
+                            <div class="form-group col-sm-6 flex-column d-flex">
+                                <label for="vertices">Dest City:</label>
+                                <input type="textarea" class="form-control" id="dest" name="dest" placeholder="Ex: Pune">
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label for="edges">Add Bus Edges[start,end,time]:</label>
-                            <input type="textarea" class="form-control" id="edges" name="edges" placeholder="Bus Edges">
+                            <label for="edges">Add Bus Edges: [src,dest,time]:</label>
+                            <input type="textarea" class="form-control" id="edges" name="edges" placeholder="Ex: [Goa,Delhi,20]-[Goa,Pune,40]">
                         </div>
                         <div class="form-group">
-                            <label for="edges">Add Plane Edges[start,end,time]:</label>
-                            <input type="textarea" class="form-control" id="planes" name="planes" placeholder="Plane Edges">
+                            <label for="edges">Add Plane Edges: [src,dest,time]:</label>
+                            <input type="textarea" class="form-control" id="planes" name="planes" placeholder="Ex: [Goa,Delhi,40]-[Delhi,Pune,30]">
                         </div>
                     </div>
                     <div class="modal-footer border-top-0 d-flex justify-content-center">
